@@ -18,7 +18,7 @@ const SINGULAR: Record<Resource, string> = {
 const id = z.number().int().positive();
 const json = z.record(z.string(), z.unknown());
 
-// Writable fields of each resource, as documented on https://jsonplaceholder.typicode.com/guide/
+// Writable fields of each resource.
 const FIELDS: Record<Resource, z.ZodRawShape> = {
   posts: { userId: id, title: z.string(), body: z.string() },
   comments: { postId: id, name: z.string(), email: z.string(), body: z.string() },
@@ -75,7 +75,7 @@ async function run(method: string, path: string, body?: unknown): Promise<CallTo
 const READ = { readOnlyHint: true, openWorldHint: true } as const;
 
 export function createMcpServer(): McpServer {
-  const server = new McpServer({ name: 'jsonplaceholder', version: '1.0.0' });
+  const server = new McpServer({ name: 'apis-to-mcp', version: '1.0.0' });
 
   for (const r of RESOURCES) {
     const one = SINGULAR[r];
@@ -99,7 +99,7 @@ export function createMcpServer(): McpServer {
     server.registerTool(
       `create_${one}`,
       {
-        description: `Create a ${one}. JSONPlaceholder fakes writes: the response echoes the new ${one} but nothing is persisted.`,
+        description: `Create a ${one}. Writes are faked: the response echoes the new ${one} but nothing is persisted.`,
         inputSchema: FIELDS[r],
         annotations: { openWorldHint: true },
       },
