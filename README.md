@@ -40,9 +40,20 @@ Unknown routes return 404; an unreachable upstream returns 502.
 
 ## MCP
 
-Endpoint: `http://localhost:3000/mcp` (Streamable HTTP, stateless; `GET`/`DELETE` return 405).
+Endpoints (Streamable HTTP, stateless; `GET`/`DELETE` return 405):
 
-41 tools, generated from the resource list in `src/resources.ts`:
+| Environment | URL |
+| --- | --- |
+| Deployed (Vercel) | `https://apis-to-mcp.vercel.app/mcp` |
+| Local | `http://localhost:3000/mcp` |
+
+The deployed endpoint has no authentication: anyone with the URL can list and call every tool.
+
+Tools are generated from the OpenAPI spec in `src/openapi.json`: one tool per operation, named by its `operationId`, described by its `description` (or `summary`), with its path, query and JSON body fields as tool arguments. Arguments are validated against the spec's schemas before the upstream call. To add, remove or change a tool, edit the spec.
+
+`src/mcp-hardcoded.ts` holds the earlier hardcoded tool registration. It is inactive (nothing imports it) and kept for reference.
+
+The current spec gives 41 tools:
 
 | Tool | Upstream call |
 | --- | --- |
@@ -59,12 +70,24 @@ Tools return the upstream JSON as text. A non-2xx upstream status comes back wit
 Add it to Claude Code:
 
 ```bash
+# deployed
+claude mcp add --transport http jsonplaceholder https://apis-to-mcp.vercel.app/mcp
+# local
 claude mcp add --transport http jsonplaceholder http://localhost:3000/mcp
 ```
 
-Or inspect it with `npx @modelcontextprotocol/inspector`.
+In claude.ai or Claude Desktop, add `https://apis-to-mcp.vercel.app/mcp` as a custom connector (Settings → Connectors).
+
+Or inspect it with `npx @modelcontextprotocol/inspector` (transport: Streamable HTTP).
 
 ## Validate
+
+Lint the spec:
+
+```bash
+npx @redocly/cli lint src/openapi.json
+```
+
 
 With the server running:
 

@@ -1,0 +1,1782 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "apis-to-mcp REST API",
+    "version": "1.0.0",
+    "description": "REST API served by apis-to-mcp, which proxies each request to the upstream API (JSONPlaceholder by default). Each operationId matches the name of the MCP tool exposed for that operation."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local dev server (npm run dev)"
+    },
+    {
+      "url": "https://jsonplaceholder.typicode.com",
+      "description": "Upstream API"
+    }
+  ],
+  "security": [],
+  "tags": [
+    {
+      "name": "Posts",
+      "description": "Operations on posts."
+    },
+    {
+      "name": "Comments",
+      "description": "Operations on comments."
+    },
+    {
+      "name": "Albums",
+      "description": "Operations on albums."
+    },
+    {
+      "name": "Photos",
+      "description": "Operations on photos."
+    },
+    {
+      "name": "Users",
+      "description": "Operations on users."
+    },
+    {
+      "name": "Todos",
+      "description": "Operations on todos."
+    }
+  ],
+  "paths": {
+    "/posts": {
+      "get": {
+        "operationId": "list_posts",
+        "tags": [
+          "Posts"
+        ],
+        "summary": "List posts",
+        "description": "List posts. Optional filters narrow results by field value.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "description": "Only return posts whose userId matches."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of posts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Post"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_post",
+        "tags": [
+          "Posts"
+        ],
+        "summary": "Create a post",
+        "description": "Create a post. Writes are faked: the response echoes the new post but nothing is persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created post, with a new id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/posts/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Id"
+        }
+      ],
+      "get": {
+        "operationId": "get_post",
+        "tags": [
+          "Posts"
+        ],
+        "summary": "Get a post",
+        "description": "Get one post by id.",
+        "responses": {
+          "200": {
+            "description": "The post.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "operationId": "update_post",
+        "tags": [
+          "Posts"
+        ],
+        "summary": "Replace a post",
+        "description": "Replace a post (PUT). All fields are required. Writes are faked and not persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The replaced post.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patch_post",
+        "tags": [
+          "Posts"
+        ],
+        "summary": "Update fields of a post",
+        "description": "Update some fields of a post (PATCH). Writes are faked and not persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated post.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_post",
+        "tags": [
+          "Posts"
+        ],
+        "summary": "Delete a post",
+        "description": "Delete a post by id. Writes are faked and not persisted.",
+        "responses": {
+          "200": {
+            "description": "Empty object.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comments": {
+      "get": {
+        "operationId": "list_comments",
+        "tags": [
+          "Comments"
+        ],
+        "summary": "List comments",
+        "description": "List comments. Optional filters narrow results by field value.",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "description": "Only return comments whose postId matches."
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only return comments whose email matches."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of comments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Comment"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_comment",
+        "tags": [
+          "Comments"
+        ],
+        "summary": "Create a comment",
+        "description": "Create a comment. Writes are faked: the response echoes the new comment but nothing is persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created comment, with a new id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comment"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comments/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Id"
+        }
+      ],
+      "get": {
+        "operationId": "get_comment",
+        "tags": [
+          "Comments"
+        ],
+        "summary": "Get a comment",
+        "description": "Get one comment by id.",
+        "responses": {
+          "200": {
+            "description": "The comment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comment"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "operationId": "update_comment",
+        "tags": [
+          "Comments"
+        ],
+        "summary": "Replace a comment",
+        "description": "Replace a comment (PUT). All fields are required. Writes are faked and not persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The replaced comment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comment"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patch_comment",
+        "tags": [
+          "Comments"
+        ],
+        "summary": "Update fields of a comment",
+        "description": "Update some fields of a comment (PATCH). Writes are faked and not persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated comment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comment"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_comment",
+        "tags": [
+          "Comments"
+        ],
+        "summary": "Delete a comment",
+        "description": "Delete a comment by id. Writes are faked and not persisted.",
+        "responses": {
+          "200": {
+            "description": "Empty object.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/albums": {
+      "get": {
+        "operationId": "list_albums",
+        "tags": [
+          "Albums"
+        ],
+        "summary": "List albums",
+        "description": "List albums. Optional filters narrow results by field value.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "description": "Only return albums whose userId matches."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of albums.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Album"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_album",
+        "tags": [
+          "Albums"
+        ],
+        "summary": "Create a album",
+        "description": "Create a album. Writes are faked: the response echoes the new album but nothing is persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlbumInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created album, with a new id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Album"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/albums/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Id"
+        }
+      ],
+      "get": {
+        "operationId": "get_album",
+        "tags": [
+          "Albums"
+        ],
+        "summary": "Get a album",
+        "description": "Get one album by id.",
+        "responses": {
+          "200": {
+            "description": "The album.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Album"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "operationId": "update_album",
+        "tags": [
+          "Albums"
+        ],
+        "summary": "Replace a album",
+        "description": "Replace a album (PUT). All fields are required. Writes are faked and not persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlbumInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The replaced album.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Album"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patch_album",
+        "tags": [
+          "Albums"
+        ],
+        "summary": "Update fields of a album",
+        "description": "Update some fields of a album (PATCH). Writes are faked and not persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlbumPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated album.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Album"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_album",
+        "tags": [
+          "Albums"
+        ],
+        "summary": "Delete a album",
+        "description": "Delete a album by id. Writes are faked and not persisted.",
+        "responses": {
+          "200": {
+            "description": "Empty object.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/photos": {
+      "get": {
+        "operationId": "list_photos",
+        "tags": [
+          "Photos"
+        ],
+        "summary": "List photos",
+        "description": "List photos. Optional filters narrow results by field value.",
+        "parameters": [
+          {
+            "name": "albumId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "description": "Only return photos whose albumId matches."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of photos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Photo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_photo",
+        "tags": [
+          "Photos"
+        ],
+        "summary": "Create a photo",
+        "description": "Create a photo. Writes are faked: the response echoes the new photo but nothing is persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhotoInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created photo, with a new id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Photo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/photos/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Id"
+        }
+      ],
+      "get": {
+        "operationId": "get_photo",
+        "tags": [
+          "Photos"
+        ],
+        "summary": "Get a photo",
+        "description": "Get one photo by id.",
+        "responses": {
+          "200": {
+            "description": "The photo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Photo"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "operationId": "update_photo",
+        "tags": [
+          "Photos"
+        ],
+        "summary": "Replace a photo",
+        "description": "Replace a photo (PUT). All fields are required. Writes are faked and not persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhotoInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The replaced photo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Photo"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patch_photo",
+        "tags": [
+          "Photos"
+        ],
+        "summary": "Update fields of a photo",
+        "description": "Update some fields of a photo (PATCH). Writes are faked and not persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhotoPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated photo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Photo"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_photo",
+        "tags": [
+          "Photos"
+        ],
+        "summary": "Delete a photo",
+        "description": "Delete a photo by id. Writes are faked and not persisted.",
+        "responses": {
+          "200": {
+            "description": "Empty object.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "operationId": "list_users",
+        "tags": [
+          "Users"
+        ],
+        "summary": "List users",
+        "description": "List users. Optional filters narrow results by field value.",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only return users whose username matches."
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only return users whose email matches."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of users.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_user",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Create a user",
+        "description": "Create a user. Writes are faked: the response echoes the new user but nothing is persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created user, with a new id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Id"
+        }
+      ],
+      "get": {
+        "operationId": "get_user",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get a user",
+        "description": "Get one user by id.",
+        "responses": {
+          "200": {
+            "description": "The user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "operationId": "update_user",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Replace a user",
+        "description": "Replace a user (PUT). All fields are required. Writes are faked and not persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The replaced user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patch_user",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update fields of a user",
+        "description": "Update some fields of a user (PATCH). Writes are faked and not persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_user",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Delete a user",
+        "description": "Delete a user by id. Writes are faked and not persisted.",
+        "responses": {
+          "200": {
+            "description": "Empty object.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/todos": {
+      "get": {
+        "operationId": "list_todos",
+        "tags": [
+          "Todos"
+        ],
+        "summary": "List todos",
+        "description": "List todos. Optional filters narrow results by field value.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "description": "Only return todos whose userId matches."
+          },
+          {
+            "name": "completed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Only return todos whose completed matches."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of todos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Todo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_todo",
+        "tags": [
+          "Todos"
+        ],
+        "summary": "Create a todo",
+        "description": "Create a todo. Writes are faked: the response echoes the new todo but nothing is persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TodoInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created todo, with a new id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Todo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/todos/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Id"
+        }
+      ],
+      "get": {
+        "operationId": "get_todo",
+        "tags": [
+          "Todos"
+        ],
+        "summary": "Get a todo",
+        "description": "Get one todo by id.",
+        "responses": {
+          "200": {
+            "description": "The todo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Todo"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "operationId": "update_todo",
+        "tags": [
+          "Todos"
+        ],
+        "summary": "Replace a todo",
+        "description": "Replace a todo (PUT). All fields are required. Writes are faked and not persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TodoInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The replaced todo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Todo"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patch_todo",
+        "tags": [
+          "Todos"
+        ],
+        "summary": "Update fields of a todo",
+        "description": "Update some fields of a todo (PATCH). Writes are faked and not persisted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TodoPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated todo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Todo"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_todo",
+        "tags": [
+          "Todos"
+        ],
+        "summary": "Delete a todo",
+        "description": "Delete a todo by id. Writes are faked and not persisted.",
+        "responses": {
+          "200": {
+            "description": "Empty object.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/posts/{id}/comments": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Id"
+        }
+      ],
+      "get": {
+        "operationId": "list_post_comments",
+        "tags": [
+          "Posts"
+        ],
+        "summary": "List a post's comments",
+        "description": "List the comments that belong to a post.",
+        "responses": {
+          "200": {
+            "description": "Array of comments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Comment"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/albums/{id}/photos": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Id"
+        }
+      ],
+      "get": {
+        "operationId": "list_album_photos",
+        "tags": [
+          "Albums"
+        ],
+        "summary": "List a album's photos",
+        "description": "List the photos that belong to a album.",
+        "responses": {
+          "200": {
+            "description": "Array of photos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Photo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}/albums": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Id"
+        }
+      ],
+      "get": {
+        "operationId": "list_user_albums",
+        "tags": [
+          "Users"
+        ],
+        "summary": "List a user's albums",
+        "description": "List the albums that belong to a user.",
+        "responses": {
+          "200": {
+            "description": "Array of albums.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Album"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}/todos": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Id"
+        }
+      ],
+      "get": {
+        "operationId": "list_user_todos",
+        "tags": [
+          "Users"
+        ],
+        "summary": "List a user's todos",
+        "description": "List the todos that belong to a user.",
+        "responses": {
+          "200": {
+            "description": "Array of todos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Todo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}/posts": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Id"
+        }
+      ],
+      "get": {
+        "operationId": "list_user_posts",
+        "tags": [
+          "Users"
+        ],
+        "summary": "List a user's posts",
+        "description": "List the posts that belong to a user.",
+        "responses": {
+          "200": {
+            "description": "Array of posts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Post"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "Id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "description": "Resource id."
+      }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "No resource with that id. The upstream returns an empty object.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Address": {
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string"
+          },
+          "suite": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "zipcode": {
+            "type": "string"
+          },
+          "geo": {
+            "type": "object",
+            "properties": {
+              "lat": {
+                "type": "string"
+              },
+              "lng": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Company": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "catchPhrase": {
+            "type": "string"
+          },
+          "bs": {
+            "type": "string"
+          }
+        }
+      },
+      "PostInput": {
+        "type": "object",
+        "required": [
+          "userId",
+          "title",
+          "body"
+        ],
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Id of the user who wrote the post."
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PostPatch": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Id of the user who wrote the post."
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Any subset of post fields."
+      },
+      "Post": {
+        "allOf": [
+          {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/PostInput"
+          }
+        ]
+      },
+      "CommentInput": {
+        "type": "object",
+        "required": [
+          "postId",
+          "name",
+          "email",
+          "body"
+        ],
+        "properties": {
+          "postId": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Id of the post the comment belongs to."
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "body": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CommentPatch": {
+        "type": "object",
+        "properties": {
+          "postId": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Id of the post the comment belongs to."
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "body": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Any subset of comment fields."
+      },
+      "Comment": {
+        "allOf": [
+          {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/CommentInput"
+          }
+        ]
+      },
+      "AlbumInput": {
+        "type": "object",
+        "required": [
+          "userId",
+          "title"
+        ],
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Id of the user who owns the album."
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AlbumPatch": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Id of the user who owns the album."
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Any subset of album fields."
+      },
+      "Album": {
+        "allOf": [
+          {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/AlbumInput"
+          }
+        ]
+      },
+      "PhotoInput": {
+        "type": "object",
+        "required": [
+          "albumId",
+          "title",
+          "url",
+          "thumbnailUrl"
+        ],
+        "properties": {
+          "albumId": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Id of the album the photo belongs to."
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "thumbnailUrl": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PhotoPatch": {
+        "type": "object",
+        "properties": {
+          "albumId": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Id of the album the photo belongs to."
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "thumbnailUrl": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Any subset of photo fields."
+      },
+      "Photo": {
+        "allOf": [
+          {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/PhotoInput"
+          }
+        ]
+      },
+      "UserInput": {
+        "type": "object",
+        "required": [
+          "name",
+          "username",
+          "email",
+          "phone",
+          "website"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "company": {
+            "$ref": "#/components/schemas/Company"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserPatch": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "company": {
+            "$ref": "#/components/schemas/Company"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Any subset of user fields."
+      },
+      "User": {
+        "allOf": [
+          {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/UserInput"
+          }
+        ]
+      },
+      "TodoInput": {
+        "type": "object",
+        "required": [
+          "userId",
+          "title",
+          "completed"
+        ],
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Id of the user the todo belongs to."
+          },
+          "title": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TodoPatch": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Id of the user the todo belongs to."
+          },
+          "title": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Any subset of todo fields."
+      },
+      "Todo": {
+        "allOf": [
+          {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/TodoInput"
+          }
+        ]
+      }
+    }
+  }
+}

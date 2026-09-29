@@ -1,10 +1,16 @@
-import type { Request, Response } from 'express';
+/**
+ * INACTIVE — kept for reference only. Nothing imports this file.
+ *
+ * The original MCP tool registration, with every tool's name, fields and
+ * filters hardcoded below. The active server (./mcp.ts) now builds the same
+ * 41 tools from ./openapi.json instead.
+ *
+ * To switch back, make handleMcp in ./mcp.ts call this createMcpServer.
+ */
 import { z } from 'zod';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { RESOURCES, NESTED, type Resource } from './resources';
-import { callUpstream } from './upstream';
+import { run } from './mcp';
 
 const SINGULAR: Record<Resource, string> = {
   posts: 'post',
@@ -55,21 +61,6 @@ function withQuery(path: string, params: Record<string, unknown>): string {
   for (const [k, v] of Object.entries(params)) if (v !== undefined) qs.set(k, String(v));
   const s = qs.toString();
   return s ? `${path}?${s}` : path;
-}
-
-async function run(method: string, path: string, body?: unknown): Promise<CallToolResult> {
-  const { status, text } = await callUpstream(method, path, body);
-  let payload = text;
-  try {
-    payload = JSON.stringify(JSON.parse(text), null, 2);
-  } catch {
-    // Non-JSON body: return as-is.
-  }
-  const ok = status >= 200 && status < 300;
-  return {
-    content: [{ type: 'text', text: ok ? payload : `HTTP ${status} ${method} ${path}\n${payload}` }],
-    isError: !ok,
-  };
 }
 
 const READ = { readOnlyHint: true, openWorldHint: true } as const;
@@ -147,37 +138,4 @@ export function createMcpServer(): McpServer {
   }
 
   return server;
-}
-
-/**
- * Stateless Streamable HTTP endpoint: each POST gets a fresh server and
- * transport, so no session state is kept between requests.
- */
-export async function handleMcp(req: Request, res: Response): Promise<void> {
-  const server = createMcpServer();
-  const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
-  res.on('close', () => {
-    transport.close();
-    server.close();
-  });
-  try {
-    await server.connect(transport);
-    await transport.handleRequest(req, res, req.body);
-  } catch (err) {
-    if (!res.headersSent) {
-      res.status(500).json({
-        jsonrpc: '2.0',
-        error: { code: -32603, message: err instanceof Error ? err.message : 'Internal server error' },
-        id: null,
-      });
-    }
-  }
-}
-
-export function methodNotAllowed(_req: Request, res: Response): void {
-  res.status(405).json({
-    jsonrpc: '2.0',
-    error: { code: -32000, message: 'Method not allowed: this MCP server is stateless, use POST.' },
-    id: null,
-  });
 }
